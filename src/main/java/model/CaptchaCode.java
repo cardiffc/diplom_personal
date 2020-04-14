@@ -18,7 +18,7 @@ public class CaptchaCode {
     private String code;
 
     @NotNull
-    @Column(name = "secretCide")
+    @Column(name = "secret_code")
     private String secretCode;
 
     public int getId() {

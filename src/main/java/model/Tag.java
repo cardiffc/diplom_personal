@@ -19,6 +19,7 @@ public class Tag {
             joinColumns = {@JoinColumn(name = "tag_id")},
             inverseJoinColumns = {@JoinColumn(name = "post_id")}
     )
+
     private List<Post> tagsPosts;
 
     public List<Post> getTagsPosts() {

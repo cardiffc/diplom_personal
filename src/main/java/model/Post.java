@@ -20,7 +20,7 @@ public class Post {
     @Enumerated(EnumType.STRING)
     @NotNull
     @Column(columnDefinition = "moderation_status DEFAULT 'NEW'")
-    private ModerationStatus moderation_status;
+    private ModerationStatus moderationStatus;
 
 
     @NotNull
@@ -71,12 +71,12 @@ public class Post {
         this.is_active = is_active;
     }
 
-    public ModerationStatus getModeration_status() {
-        return moderation_status;
+    public ModerationStatus getModerationStatus() {
+        return moderationStatus;
     }
 
-    public void setModeration_status(ModerationStatus moderation_status) {
-        this.moderation_status = moderation_status;
+    public void setModerationStatus(ModerationStatus moderationStatus) {
+        this.moderationStatus = moderationStatus;
     }
 
     public User getUser() {
