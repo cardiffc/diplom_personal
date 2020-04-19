@@ -4,24 +4,27 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.Date;
-
 @Data
 @Entity
-@Table(name = "captcha_codes")
-public class CaptchaCode {
+@Table(name = "post_votes")
+public class PostVote {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @ManyToOne(cascade = CascadeType.ALL)
     @NotNull
-    private LocalDateTime time;
+    private User user;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @NotNull
+    private Post post;
 
     @NotNull
-    private String code;
+    private Date time;
 
     @NotNull
-    @Column(name = "secret_code")
-    private String secretCode;
+    private byte value;
 }

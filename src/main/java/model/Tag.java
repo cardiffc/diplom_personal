@@ -1,9 +1,12 @@
 package model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "tags")
 public class Tag {
@@ -19,30 +22,5 @@ public class Tag {
             joinColumns = {@JoinColumn(name = "tag_id")},
             inverseJoinColumns = {@JoinColumn(name = "post_id")}
     )
-
     private List<Post> tagsPosts;
-
-    public List<Post> getTagsPosts() {
-        return tagsPosts;
-    }
-
-    public void setTagsPosts(List<Post> tagsPosts) {
-        this.tagsPosts = tagsPosts;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
