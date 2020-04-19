@@ -14,7 +14,7 @@ import java.util.Date;
 @SpringBootApplication
 @EntityScan(basePackages = {"model"})
 @EnableJpaRepositories("repositories")
-@ComponentScan(basePackages = {"controller"})
+@ComponentScan(basePackages = {"controller","main"})
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);

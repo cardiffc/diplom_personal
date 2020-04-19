@@ -1,8 +1,8 @@
 package controller;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import main.Blog;
+import model.Blog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

@@ -1,8 +1,8 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import enums.ModerationStatus;
 import lombok.Data;
+import enums.ModerationStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
