@@ -1,7 +1,9 @@
 package controller;
 
+import main.SpringConfig;
 import model.Blog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,8 @@ public class ApiGeneralController {
     @GetMapping("/api/init")
     public ResponseEntity getTestBlog() {
 
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                "applicationContext.xml"
-        );
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+
         Blog blog = context.getBean("blog", Blog.class);
         context.close();
 

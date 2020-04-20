@@ -1,12 +1,4 @@
-spring.datasource.url: jdbc:postgresql://localhost:5431/blog
+spring.datasource.url: jdbc:postgresql://localhost:5432/blog
 spring.datasource.username: postgres
 spring.datasource.password: pass
 spring.jpa.hibernate.ddl-auto: none
-#spring.datasource.driver-class-name: org.postgresql.Driver
-
-#blog.title: My blog
-#blog.subtitle: Blog subtitle
-#blog.phone: 89853818280
-#blog.email: cardiffc@yandex.ru
-#blog.copyright: Yury Shchegolev
-#blog.copyrightFrom: 2020
