@@ -16,12 +16,10 @@ public class User {
 
     @NotNull
     @Column(name = "is_moderated")
-    @JsonIgnore
     private byte isModerator;
 
     @NotNull
     @Column(name = "reg_time")
-    @JsonIgnore
     private LocalDateTime regTime;
 
     @NotNull
@@ -32,14 +30,11 @@ public class User {
     private String email;
 
     @NotNull
-    @JsonIgnore
     private String password;
 
     @NotNull
-    @JsonIgnore
     private String code;
 
     @NotNull
-    @JsonIgnore
     private String photo;
 }

@@ -1,6 +1,5 @@
 package model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import enums.ModerationStatus;
 
@@ -9,8 +8,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Entity
+@Data
 @Table(name = "posts")
 public class Post {
     @Id
@@ -19,13 +18,11 @@ public class Post {
 
     @NotNull
     @Column(name = "is_active")
-    @JsonIgnore
     private byte isActive;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(columnDefinition = "moderation_status DEFAULT 'NEW'")
-    @JsonIgnore
+    @Column(name = "moderation_status", columnDefinition = "moderation_status DEFAULT 'NEW'")
     private ModerationStatus moderationStatus;
 
 
