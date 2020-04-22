@@ -14,13 +14,10 @@ import repositories.PostRepository;
 public class ApiGeneralController {
 
     @GetMapping("/api/init")
-    public ResponseEntity getTestBlog() {
-
+    public ResponseEntity getBlogInfo() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
-
         Blog blog = context.getBean("blog", Blog.class);
         context.close();
-
         if (blog == null) {
             return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
@@ -32,7 +29,6 @@ public class ApiGeneralController {
     @GetMapping(value = "/api/tag")
     public ResponseEntity getTags(String query)
     {
-        
         return null;
     }
 

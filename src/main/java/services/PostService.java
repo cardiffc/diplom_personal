@@ -1,51 +1,81 @@
 package services;
 
-import lombok.Builder;
+import enums.ModerationStatus;
+import enums.PostSortTypes;
+import enums.VoteType;
 import model.Post;
-import org.springframework.beans.factory.annotation.Autowired;
+import model.PostVote;
 import repositories.PostRepository;
 import response.PostBody;
 import response.PostResponseBody;
 import response.UserBody;
-
+import services.comparators.PostByCommentComp;
+import services.comparators.PostByDateComp;
+import services.comparators.PostLikeComp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-
 import java.util.List;
 
 
 public class PostService {
 
+    public PostResponseBody getPostResponse(PostRepository postRepository, int offset, int limit, String mode) {
 
-    public PostResponseBody getPostResponse(PostRepository repository) {
-        Iterable<Post> posts = repository.findAll();
-        List<Post> allPosts = new ArrayList<>();
-        posts.forEach(allPosts::add);
-        int postsCount = allPosts.size();
+        // Revieving all posts from database and adding to collections with active condition
+        Iterable<Post> postIterable = postRepository.findAll();
+        List<Post> posts = new ArrayList<>();
+        int count = 0;
+        for (Post post : postIterable) {
+            count++;
+            if (post.getIsActive() == 1
+                    && post.getModerationStatus().equals(ModerationStatus.ACCEPTED)
+                    && post.getTime().isBefore(LocalDateTime.now())) {
+                posts.add(post);
+            }
+        }
+
+        List<Post> sortedPosts = getSortedPosts(posts, mode);
+
         List<PostBody> postBodies = new ArrayList<>();
-        allPosts.forEach(post -> {
+
+        int finish = Math.min(sortedPosts.size(), offset + limit);
+        for (int i = offset; i < finish; i++) {
+            Post currentPost = sortedPosts.get(i);
             UserBody userBody = new UserBody(
-                    post.getUser().getId(),
-                    post.getUser().getName()
-
+                    currentPost.getUser().getId(),
+                    currentPost.getUser().getName()
             );
-
-
-            //TODO Сделать нормальный likeCount и announce
             PostBody postBody = new PostBody(
-                    post.getId(),
-                    "Вчера, 17:25",
+                    currentPost.getId(),
+                    currentPost.getTime().toString(),
                     userBody,
-                    post.getTitle(),
-                    "Без тэгов",
-                    12,
-                    1,
-                    2,
-                    3
-
+                    currentPost.getTitle(),
+                    //TODO: тут должен быть annonce
+                    currentPost.getTitle(),
+                    currentPost.getVotes(VoteType.like),
+                    currentPost.getVotes(VoteType.dislike),
+                    currentPost.getCommentsCount(),
+                    currentPost.getViewCount()
             );
-            postBodies.add(postBody);
-        });
-        return new PostResponseBody(postsCount, postBodies);
 
+            postBodies.add(postBody);
+
+        }
+
+        return new PostResponseBody(count, postBodies);
+    }
+
+    private List<Post> getSortedPosts(List<Post> posts, String mode) {
+
+        if (mode.equals(PostSortTypes.best.toString()))
+            posts.sort(new PostLikeComp());
+        if (mode.equals(PostSortTypes.popular.toString()))
+            posts.sort(new PostByCommentComp());
+        if (mode.equals(PostSortTypes.early.toString()))
+            posts.sort(new PostByDateComp().reversed());
+        if (mode.equals(PostSortTypes.recent.toString()))
+            posts.sort(new PostByDateComp());
+
+        return posts;
     }
 }

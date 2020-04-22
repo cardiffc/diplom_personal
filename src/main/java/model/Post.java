@@ -1,11 +1,13 @@
 package model;
 
+import enums.VoteType;
 import lombok.Data;
 import enums.ModerationStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,4 +54,25 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<PostVote> postVote;
+
+    @OneToMany(mappedBy = "post")
+    private List<PostComment> postComments;
+
+    public int getVotes(VoteType value) {
+        int likes = 0;
+        int disLikes = 0;
+        List<PostVote> votes = getPostVote();
+        for (PostVote vote : votes) {
+            if (vote.getValue() == 1) {
+                likes++;
+            } else {
+                disLikes++;
+            }
+        }
+        return (value.equals(VoteType.like)) ? likes :disLikes;
+    }
+
+    public int getCommentsCount() {
+        return getPostComments().size();
+    }
 }
