@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelog/db.changelog-create.yaml
+  - changeSet:
+      id: 1
+      author: cardiff
+      changes:
+        - createTable:
+            tableName: captcha_codes
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: yes
+              - column:
+                  name: code
+                  type: varchar
+
