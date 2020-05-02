@@ -4,6 +4,7 @@ import enums.ModerationStatus;
 import enums.PostSortTypes;
 import enums.VoteType;
 import model.Post;
+import model.Tag;
 import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -91,9 +93,26 @@ public class PostService {
     }
 
     public PostResponseBody getPostsByTag(int offset, int limit, String tag) {
-        int count = (int) entityManager.createQuery("SELECT max(id) from Post").getSingleResult();
+       Query tagQuery = entityManager.createQuery("from Tag t where t.name = :tagName", Tag.class);
+       tagQuery.setParameter("tagName", tag);
+       Tag currentTag = (Tag) tagQuery.getResultList().get(0);
+       List<Post> taggedPosts = currentTag.getTagsPosts();
 
-        return null;
+        for (int i = 0; i < taggedPosts.size(); i++) {
+            Post currentPost = taggedPosts.get(i);
+           if (currentPost.getTime().isAfter(LocalDateTime.now()) || currentPost.getIsActive() != 1
+                   || !currentPost.getModerationStatus().equals(ModerationStatus.ACCEPTED)) {
+               taggedPosts.remove(currentPost);
+           }
+        }
+
+        int finish = Math.min(taggedPosts.size(), offset + limit);
+        ArrayList resultPosts = new ArrayList();
+        for (int i = offset; i < finish ; i++) {
+            resultPosts.add(taggedPosts.get(i));
+
+        }
+        return createResponse(taggedPosts.size(), resultPosts);
     }
 
 
