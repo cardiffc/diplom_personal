@@ -4,6 +4,7 @@ import enums.ModerationStatus;
 import enums.PostSortTypes;
 import enums.VoteType;
 import model.Post;
+import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import repositories.PostRepository;
@@ -34,47 +35,65 @@ public class PostService {
     @Autowired
     PostRepository postRepository;
 
-
+    private static String countPrefix = "select count(*) ";
 
     public PostResponseBody getPostResponse(int offset, int limit, String mode) {
-
-        // Revieving all posts from database and adding to collections with active condition
-        Iterable<Post> postIterable = postRepository.findAll();
-        List<Post> posts = new ArrayList<>();
-        int count = 0;
-        for (Post post : postIterable) {
-            count++;
-            if (post.getIsActive() == 1
-                    && post.getModerationStatus().equals(ModerationStatus.ACCEPTED)
-                    && post.getTime().isBefore(LocalDateTime.now())) {
-                posts.add(post);
-            }
-        }
-        List<Post> sortedPosts = getSortedPosts(posts, mode);
-        return createResponse(count, limit, offset, sortedPosts);
+        Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
+                                                        "p.isActive = 1 and time < :nowTime", Post.class);
+        allPosts.setParameter("nowTime", LocalDateTime.now());
+        int count = (int) entityManager.createQuery("SELECT max(id) from Post").getSingleResult();
+        allPosts.setFirstResult(offset);
+        allPosts.setMaxResults(limit);
+        List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
+        return createResponse(count, resultPosts);
     }
 
     public PostResponseBody getSearchedPosts (int offset, int limit, String query) {
         if (query.trim().equals("")) {
             return  getPostResponse(offset, limit, PostSortTypes.recent.toString());
         }
-        Query searchQuery = entityManager.createQuery("from Post p where p.text like :searchParam " +
-                "and p.moderationStatus = 'ACCEPTED' and p.isActive = :isactive and time < :nowTime", Post.class);
-        searchQuery.setParameter("searchParam","%" + query + "%").setParameter("isactive", (byte) 1)
-                .setParameter("nowTime", LocalDateTime.now());
-        List<Post> foundPosts = searchQuery.getResultList();
-        return createResponse(foundPosts.size(), limit, offset, foundPosts);
+        String mainQuery = "from Post p where p.text like :searchParam and p.moderationStatus = 'ACCEPTED' and " +
+                            "p.isActive = '1' and time < :nowTime";
+        Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
+        countQuery.setParameter("searchParam","%" + query + "%").setParameter("nowTime", LocalDateTime.now());
+        Long preCount = (Long) countQuery.getSingleResult();
+        Integer count = Integer.parseInt(preCount.toString());
+
+
+        Query searchQuery = entityManager.createQuery(mainQuery, Post.class);
+        searchQuery.setParameter("searchParam","%" + query + "%").setParameter("nowTime", LocalDateTime.now());
+        searchQuery.setFirstResult(offset);
+        searchQuery.setMaxResults(limit);
+        List<Post> resultPosts = searchQuery.getResultList();
+        return createResponse(count,resultPosts);
     }
 
     public PostResponseBody getPostsByDate(int offset, int limit, String date) throws ParseException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date day = formatter.parse(date);
+
+        String mainQuery = "from Post p where p.moderationStatus = 'ACCEPTED' and p.isActive = '1' " +
+                            "and date_trunc('day', p.time) = :day";
+        Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
+        countQuery.setParameter("day",day);
+
+        Long preCount = (Long) countQuery.getSingleResult();
+        Integer count = Integer.parseInt(preCount.toString());
+
         Query searchByDateQuery = entityManager.createQuery(
-                "from Post p where p.moderationStatus = 'ACCEPTED' and p.isActive = :isActive and " +
-                        "date_trunc('day', p.time) = :day", Post.class);
-        searchByDateQuery.setParameter("isActive", (byte) 1).setParameter("day", formatter.parse(date));
-        List<Post> foundPosts = searchByDateQuery.getResultList();
-        return createResponse(foundPosts.size(), limit, offset, foundPosts);
+                mainQuery, Post.class);
+        searchByDateQuery.setParameter("day", day);
+        searchByDateQuery.setFirstResult(offset);
+        searchByDateQuery.setMaxResults(limit);
+        List<Post> resultPosts = searchByDateQuery.getResultList();
+        return createResponse(count,resultPosts);
+    }
+
+    public PostResponseBody getPostsByTag(int offset, int limit, String tag) {
+        int count = (int) entityManager.createQuery("SELECT max(id) from Post").getSingleResult();
+
+        return null;
     }
 
 
@@ -93,12 +112,10 @@ public class PostService {
         return posts;
     }
 
-    private PostResponseBody createResponse (int count, int limit, int offset, List<Post> posts) {
+    private PostResponseBody createResponse (int count, List<Post> posts) {
 
         List<PostBody> postBodies = new ArrayList<>();
-
-        int finish = Math.min(posts.size(), offset + limit);
-        for (int i = offset; i < finish; i++) {
+        for (int i = 0; i < posts.size(); i++) {
             Post currentPost = posts.get(i);
             UserBody userBody = UserBody.builder().id(currentPost.getUser().getId())
                     .name(currentPost.getUser().getName()).build();

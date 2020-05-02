@@ -23,7 +23,7 @@ public class ApiPostController {
     @GetMapping
     public ResponseEntity<PostResponseBody> getPost(int offset,int limit,String mode) {
         PostResponseBody postResponseBody = postService.getPostResponse(offset, limit, mode);
-        return new ResponseEntity<PostResponseBody>(postResponseBody, HttpStatus.OK);
+        return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 
     @GetMapping("search")
@@ -41,6 +41,12 @@ public class ApiPostController {
     @GetMapping("byDate")
     public ResponseEntity<PostResponseBody> getPostsByDate(int offset, int limit, String date) throws ParseException {
         PostResponseBody postResponseBody = postService.getPostsByDate(offset,limit,date);
+        return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
+    }
+
+    @GetMapping("byTag")
+    public ResponseEntity<PostResponseBody> getPostsByTag(int offset, int limit, String tag) {
+        PostResponseBody postResponseBody = postService.getPostsByTag(offset,limit,tag);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 }
