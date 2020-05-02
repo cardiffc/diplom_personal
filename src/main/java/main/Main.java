@@ -16,7 +16,7 @@ import java.util.Date;
 @SpringBootApplication
 @EntityScan("model")
 @EnableJpaRepositories("repositories")
-@ComponentScan(basePackages = {"controller","main"})
+@ComponentScan(basePackages = {"controller","main","services"})
 public class Main {
 
     @Autowired

@@ -28,6 +28,9 @@ public class Post {
     private ModerationStatus moderationStatus;
 
 
+    @Column(name = "moderator_id")
+    private Integer moderatorId;
+
     @NotNull
     @ManyToOne(cascade = CascadeType.ALL)
     private User user;

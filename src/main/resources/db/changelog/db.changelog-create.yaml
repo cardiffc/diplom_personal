@@ -5,13 +5,269 @@ databaseChangeLog:
       author: cardiff
       changes:
         - createTable:
+              tableName: posts
+              columns:
+                - column:
+                    name: id
+                    type: int4
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                - column:
+                   name: is_active
+                   type: tinyint
+                   constraints:
+                     nullable: false
+                - column:
+                   name: moderation_status
+                   type: moderation_status
+                   defaultValue: NEW
+                   constraints:
+                     nullable: false
+                - column: 
+                   name: moderator_id
+                   type: int4
+                - column:
+                   name: user_id
+                   type: int4
+                   constraints:
+                     nullable: false
+                - column:
+                   name: time
+                   type: timestamp
+                   constraints:
+                     nullable: false
+                - column:
+                   name: title
+                   type: varchar(255)
+                   constraints: 
+                     nullable: false
+                - column:
+                   name: text
+                   type: text
+                   constraints:
+                     nullable: false
+                - column:
+                   name: view_count
+                   type: int4
+                   constraints:
+                     nullable: false
+        - createTable:
             tableName: captcha_codes
             columns:
               - column:
                   name: id
-                  type: int
-                  autoIncrement: yes
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
               - column:
                   name: code
-                  type: varchar
+                  type: tinytext
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secret_code
+                  type: tinytext
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: post_comments
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: int4
+              - column:
+                  name: post_id
+                  type: int4
+                  constraints:
+                    nullable: false
+                    references: posts(id)
+                    foreignKeyName: commnt_to_post                   
+              - column:
+                  name: user_id
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: text
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: tags2post
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false                  
+              - column:
+                  name: post_id
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: int4
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: post_votes
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: post_id
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: tinyint
+                  constraints:
+                    nullable: false
+        
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column: 
+                  name: is_moderator
+                  type: tinyint
+                  constraints:
+                    nullable: false
+              - column: 
+                  name: reg_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(255)
+              - column:
+                  name: photo
+                  type: text       
+        - createTable:
+            tableName: global_settings
+            columns:
+              - column:
+                  name: id
+                  type: int4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
 
+                                      
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: captcha_codes
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: post_comments 
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: tags2post  
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: tags
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: post_votes
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: posts
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: users
+        - addAutoIncrement:
+            columnDataType: int4
+            columnName: id
+            tableName: global_settings

@@ -15,7 +15,7 @@ public class User {
     private int id;
 
     @NotNull
-    @Column(name = "is_moderated")
+    @Column(name = "is_moderator")
     private byte isModerator;
 
     @NotNull
@@ -36,5 +36,6 @@ public class User {
     private String code;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String photo;
 }
