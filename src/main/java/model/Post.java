@@ -1,16 +1,17 @@
 package model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import enums.VoteType;
 import lombok.Data;
 import enums.ModerationStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
+@Data
 @Table(name = "posts")
 public class Post {
     @Id
@@ -19,15 +20,16 @@ public class Post {
 
     @NotNull
     @Column(name = "is_active")
-    @JsonIgnore
     private byte isActive;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(columnDefinition = "moderation_status DEFAULT 'NEW'")
-    @JsonIgnore
+    @Column(name = "moderation_status", columnDefinition = "moderation_status DEFAULT 'NEW'")
     private ModerationStatus moderationStatus;
 
+
+    @Column(name = "moderator_id")
+    private Integer moderatorId;
 
     @NotNull
     @ManyToOne(cascade = CascadeType.ALL)
@@ -55,4 +57,25 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<PostVote> postVote;
+
+    @OneToMany(mappedBy = "post")
+    private List<PostComment> postComments;
+
+    public int getVotes(VoteType value) {
+        int likes = 0;
+        int disLikes = 0;
+        List<PostVote> votes = getPostVote();
+        for (PostVote vote : votes) {
+            if (vote.getValue() == 1) {
+                likes++;
+            } else {
+                disLikes++;
+            }
+        }
+        return (value.equals(VoteType.like)) ? likes :disLikes;
+    }
+
+    public int getCommentsCount() {
+        return getPostComments().size();
+    }
 }

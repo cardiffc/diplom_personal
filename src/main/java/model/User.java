@@ -15,13 +15,11 @@ public class User {
     private int id;
 
     @NotNull
-    @Column(name = "is_moderated")
-    @JsonIgnore
+    @Column(name = "is_moderator")
     private byte isModerator;
 
     @NotNull
     @Column(name = "reg_time")
-    @JsonIgnore
     private LocalDateTime regTime;
 
     @NotNull
@@ -32,14 +30,12 @@ public class User {
     private String email;
 
     @NotNull
-    @JsonIgnore
     private String password;
 
     @NotNull
-    @JsonIgnore
     private String code;
 
     @NotNull
-    @JsonIgnore
+    @Column(columnDefinition = "TEXT")
     private String photo;
 }
