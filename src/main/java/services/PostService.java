@@ -3,11 +3,9 @@ package services;
 import enums.ModerationStatus;
 import enums.PostSortTypes;
 import enums.VoteType;
-import lombok.Data;
 import model.Post;
 import model.PostComment;
 import model.Tag;
-import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import repositories.PostRepository;
@@ -20,11 +18,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -43,11 +39,10 @@ public class PostService {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
                 "p.isActive = 1 and time < :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
-        int count = (int) entityManager.createQuery("SELECT max(id) from Post").getSingleResult();
         allPosts.setFirstResult(offset);
         allPosts.setMaxResults(limit);
         List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
-        return createResponse(count, resultPosts);
+        return createResponse(getAllPostCount(), resultPosts);
     }
 
     public PostResponseBody getSearchedPosts (int offset, int limit, String query) {
