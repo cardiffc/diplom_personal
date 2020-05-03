@@ -1,20 +1,11 @@
 package response;
-
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import model.PostComment;
-import model.Tag;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class CurrentPostResponseBody {
 
         private int id;
@@ -26,6 +17,6 @@ public class CurrentPostResponseBody {
         private int dislikeCount;
         private int commentCount;
         private int viewCount;
-        private List<PostComment> comments;
-        private List<Tag> tags;
+        private List<CommentBody> comments;
+        private String[] tags;
 }

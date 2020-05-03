@@ -1,14 +1,11 @@
 package response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-
 public class PostBody {
     private int id;
     private String time;

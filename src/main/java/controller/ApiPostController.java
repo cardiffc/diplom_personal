@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import response.CurrentPostResponseBody;
 import response.PostResponseBody;
 import services.PostService;
 
@@ -33,10 +34,6 @@ public class ApiPostController {
     }
 
 
-    @GetMapping("{id}")
-    public ResponseEntity<PostResponseBody> getCurrentPost(@PathVariable int id) {
-        return null;
-    }
 
     @GetMapping("byDate")
     public ResponseEntity<PostResponseBody> getPostsByDate(int offset, int limit, String date) throws ParseException {
@@ -48,5 +45,11 @@ public class ApiPostController {
     public ResponseEntity<PostResponseBody> getPostsByTag(int offset, int limit, String tag) {
         PostResponseBody postResponseBody = postService.getPostsByTag(offset,limit,tag);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<CurrentPostResponseBody> getPostById(@PathVariable int id) {
+        CurrentPostResponseBody currentPostResponseBody = postService.getPostById(id);
+        return new ResponseEntity<>(currentPostResponseBody, HttpStatus.OK);
     }
 }

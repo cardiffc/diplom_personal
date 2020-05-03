@@ -3,15 +3,15 @@ package services;
 import enums.ModerationStatus;
 import enums.PostSortTypes;
 import enums.VoteType;
+import lombok.Data;
 import model.Post;
+import model.PostComment;
 import model.Tag;
 import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import repositories.PostRepository;
-import response.PostBody;
-import response.PostResponseBody;
-import response.UserBody;
+import response.*;
 import services.comparators.PostByCommentComp;
 import services.comparators.PostByDateComp;
 import services.comparators.PostLikeComp;
@@ -41,7 +41,7 @@ public class PostService {
 
     public PostResponseBody getPostResponse(int offset, int limit, String mode) {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
-                                                        "p.isActive = 1 and time < :nowTime", Post.class);
+                "p.isActive = 1 and time < :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
         int count = (int) entityManager.createQuery("SELECT max(id) from Post").getSingleResult();
         allPosts.setFirstResult(offset);
@@ -55,7 +55,7 @@ public class PostService {
             return  getPostResponse(offset, limit, PostSortTypes.recent.toString());
         }
         String mainQuery = "from Post p where p.text like :searchParam and p.moderationStatus = 'ACCEPTED' and " +
-                            "p.isActive = '1' and time < :nowTime";
+                "p.isActive = '1' and time < :nowTime";
         Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
         countQuery.setParameter("searchParam","%" + query + "%").setParameter("nowTime", LocalDateTime.now());
         Long preCount = (Long) countQuery.getSingleResult();
@@ -76,7 +76,7 @@ public class PostService {
         Date day = formatter.parse(date);
 
         String mainQuery = "from Post p where p.moderationStatus = 'ACCEPTED' and p.isActive = '1' " +
-                            "and date_trunc('day', p.time) = :day";
+                "and date_trunc('day', p.time) = :day";
         Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
         countQuery.setParameter("day",day);
 
@@ -93,17 +93,17 @@ public class PostService {
     }
 
     public PostResponseBody getPostsByTag(int offset, int limit, String tag) {
-       Query tagQuery = entityManager.createQuery("from Tag t where t.name = :tagName", Tag.class);
-       tagQuery.setParameter("tagName", tag);
-       Tag currentTag = (Tag) tagQuery.getResultList().get(0);
-       List<Post> taggedPosts = currentTag.getTagsPosts();
+        Query tagQuery = entityManager.createQuery("from Tag t where t.name = :tagName", Tag.class);
+        tagQuery.setParameter("tagName", tag);
+        Tag currentTag = (Tag) tagQuery.getResultList().get(0);
+        List<Post> taggedPosts = currentTag.getTagsPosts();
 
         for (int i = 0; i < taggedPosts.size(); i++) {
             Post currentPost = taggedPosts.get(i);
-           if (currentPost.getTime().isAfter(LocalDateTime.now()) || currentPost.getIsActive() != 1
-                   || !currentPost.getModerationStatus().equals(ModerationStatus.ACCEPTED)) {
-               taggedPosts.remove(currentPost);
-           }
+            if (currentPost.getTime().isAfter(LocalDateTime.now()) || currentPost.getIsActive() != 1
+                    || !currentPost.getModerationStatus().equals(ModerationStatus.ACCEPTED)) {
+                taggedPosts.remove(currentPost);
+            }
         }
 
         int finish = Math.min(taggedPosts.size(), offset + limit);
@@ -113,6 +113,41 @@ public class PostService {
 
         }
         return createResponse(taggedPosts.size(), resultPosts);
+    }
+
+    public CurrentPostResponseBody getPostById(int id) {
+        Query byIdQuery = entityManager.createQuery("from Post p where p.id = :postId and p.isActive = '1' " +
+                "and p.moderationStatus = 'ACCEPTED'", Post.class);
+        byIdQuery.setParameter("postId", id);
+        Post currentPost = (Post) byIdQuery.getResultList().get(0);
+        String postText = currentPost.getText();
+        String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
+        UserBody userBody = UserBody.builder().id(currentPost.getUser().getId()).name(currentPost.getUser().getName())
+                .build();
+
+        List<PostComment> currentPostComments = currentPost.getPostComments();
+        ArrayList<CommentBody> responseComments = new ArrayList<>();
+        for (PostComment comment : currentPostComments) {
+            UserBody commentUser = UserBody.builder().id(comment.getUser().getId()).name(comment.getUser().getName())
+                    .photo(comment.getUser().getPhoto()).build();
+
+            CommentBody commentBody = CommentBody.builder().id(comment.getId()).time(comment.getTime())
+                    .text(comment.getText()).user(commentUser).build();
+
+            responseComments.add(commentBody);
+
+        }
+        List<Tag> currentPostTags = currentPost.getPostTags();
+        String[] tags = new String[currentPostTags.size()];
+
+        for (int i = 0; i < currentPostTags.size() ; i++) {
+            tags[i] = currentPostTags.get(i).getName();
+
+        }
+        return   CurrentPostResponseBody.builder().id(currentPost.getId()).time(currentPost.getTime()).user(userBody)
+                .title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
+                .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
+                .viewCount(currentPost.getViewCount()).comments(responseComments).tags(tags).build();
     }
 
 
@@ -155,5 +190,13 @@ public class PostService {
             postBodies.add(postBody);
         }
         return new PostResponseBody(count, postBodies);
+    }
+
+    public int getAllPostCount() {
+        Query query = entityManager.createQuery("select count(*) from Post p where p.isActive = '1' and " +
+                "p.moderationStatus = 'ACCEPTED'");
+        Long preCount = (Long) query.getSingleResult();
+        int count = Integer.parseInt(preCount.toString());
+        return count;
     }
 }
