@@ -43,6 +43,46 @@ public class TagService {
         List<Tag> currentTags = searchQuery.getResultList();
         ArrayList<TagBody> tags = getTagBodies(currentTags);
         TagResponseBody tagResponse = new TagResponseBody(tags);
+
+        /** TEST HQL YEAR **/
+
+        /** select count(*) as posts_count from posts where moderation_status = 'ACCEPTED' and is_active = '1' and date_part('year', time) = '2020'; **/
+
+        Query yearQuery = entityManager.createQuery("select year(time) as test1 from Post p where p.moderationStatus = 'ACCEPTED' group by test1");
+        Query yearQuery1 = entityManager.createQuery("select to_char(time, 'YYYY-MM-DD') as test1, year(time) as test2, month(time) as mo from Post p where p.id = '1'");
+
+
+        /** select count(*) as posts_count, date_part('year', time ) as year_count from posts group by year_count; **/
+
+        Query tupleTest = entityManager.createQuery("select count(*) as posts_count, to_char(time,'YYYY') as year_count from Post p group by year_count");
+        List<Object[]> tuple = tupleTest.getResultList();
+        System.out.println(tuple.get(0)[0] + "/" + tuple.get(0)[1]);
+        System.out.println(tuple.get(1)[0] + "/" + tuple.get(1)[1]);
+        System.out.println("********************************************************");
+
+
+        Query preProd = entityManager.createQuery("select count(*) from Post p where p.moderationStatus = 'ACCEPTED' and p.isActive = '1' and year(time) = '2020'");
+
+       List<Long> prodInts = preProd.getResultList();
+
+       prodInts.forEach(System.out::println);
+
+       // System.out.println(prodInt);
+
+        List<Integer> gg = yearQuery.getResultList();
+        gg.forEach(System.out::println);
+
+
+        List<Object[]> ll =  yearQuery1.getResultList();
+        ll.forEach(element -> System.out.println(element[0] + "/" + element[1] + "/" + element[2]));
+
+        //        Integer ll = yearQuery1.getFirstResult();
+//
+//        System.out.println(ll);
+
+
+        /****/
+
         return tagResponse;
     }
 

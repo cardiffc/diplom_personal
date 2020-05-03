@@ -9,14 +9,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import response.CalendarResponseBody;
 import response.TagResponseBody;
+import services.CalendarService;
 import services.TagService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Controller
 public class ApiGeneralController {
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private CalendarService calendarService;
 
     @GetMapping("/api/init")
     public ResponseEntity getBlogInfo() {
@@ -31,7 +39,7 @@ public class ApiGeneralController {
     }
 
 
-    @GetMapping(value = "/api/tag")
+    @GetMapping("/api/tag")
     public ResponseEntity getTags(@RequestParam(required = false) String query)
     {
         TagResponseBody tagResponseBody;
@@ -40,6 +48,14 @@ public class ApiGeneralController {
         else
             tagResponseBody = tagService.getSearchedTags(query);
         return new ResponseEntity(tagResponseBody, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/calendar")
+    public ResponseEntity getCalendar(@RequestParam(required = false) String year) {
+        if (year == null)
+            year = Integer.toString(LocalDateTime.now().getYear());
+        CalendarResponseBody calendarResponseBody = calendarService.getCalendar(year);
+        return new ResponseEntity(calendarResponseBody, HttpStatus.OK);
     }
 
     @GetMapping("/api/auth/check")
