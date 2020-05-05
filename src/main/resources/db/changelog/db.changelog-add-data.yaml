@@ -22,7 +22,7 @@ databaseChangeLog:
                   value: "daniil@mail.ru"
               - column:
                   name: password
-                  value: "pass"
+                  value: "pass12345"
         - insert:
             tableName: users
             columns:
@@ -40,7 +40,7 @@ databaseChangeLog:
                   value: "michail@mail.ru"
               - column:
                   name: password
-                  value: "angel"
+                  value: "angel12345"
 
 #добавление постов
         - insert:
@@ -115,6 +115,9 @@ databaseChangeLog:
               - column:
                   name: view_count
                   value: 34
+              - column:
+                  name: moderator_id
+                  value: 2
         - insert:
             tableName: posts
             columns:

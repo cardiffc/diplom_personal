@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+//TODO: Убрать парсинг Long - Integer, работать с Long
 
 @Component
 public class PostService {
@@ -37,7 +38,7 @@ public class PostService {
 
     public PostResponseBody getPostResponse(int offset, int limit, String mode) {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
-                "p.isActive = 1 and time < :nowTime", Post.class);
+                "p.isActive = 1 and time <= :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
         allPosts.setFirstResult(offset);
         allPosts.setMaxResults(limit);
@@ -100,14 +101,8 @@ public class PostService {
                 taggedPosts.remove(currentPost);
             }
         }
-
         int finish = Math.min(taggedPosts.size(), offset + limit);
-        ArrayList resultPosts = new ArrayList();
-        for (int i = offset; i < finish ; i++) {
-            resultPosts.add(taggedPosts.get(i));
-
-        }
-        return createResponse(taggedPosts.size(), resultPosts);
+        return createResponse(taggedPosts.size(), taggedPosts.subList(offset, finish));
     }
 
     public CurrentPostResponseBody getPostById(int id) {
@@ -189,7 +184,7 @@ public class PostService {
 
     public int getAllPostCount() {
         Query query = entityManager.createQuery("select count(*) from Post p where p.isActive = '1' and " +
-                "p.moderationStatus = 'ACCEPTED'");
+                "p.moderationStatus = 'ACCEPTED' and time <= :data").setParameter("data", LocalDateTime.now());
         Long preCount = (Long) query.getSingleResult();
         int count = Integer.parseInt(preCount.toString());
         return count;
