@@ -100,7 +100,7 @@ public class PostService {
         return createResponse(taggedPosts.size(), taggedPosts.subList(offset, finish));
     }
 
-    public CurrentPostResponseBody getPostById(int id) {
+    public PostBody getPostById(int id) {
         Query byIdQuery = entityManager.createQuery("from Post p where p.id = :postId and p.isActive = '1' " +
                 "and p.moderationStatus = 'ACCEPTED'", Post.class);
         byIdQuery.setParameter("postId", id);
@@ -129,7 +129,7 @@ public class PostService {
             tags[i] = currentPostTags.get(i).getName();
 
         }
-        return   CurrentPostResponseBody.builder().id(currentPost.getId()).time(currentPost.getTime()).user(userBody)
+        return   PostBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString()).user(userBody)
                 .title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
                 .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
                 .viewCount(currentPost.getViewCount()).comments(responseComments).tags(tags).build();
@@ -161,17 +161,22 @@ public class PostService {
 
             String postText = currentPost.getText();
             String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
-            PostBody postBody = new PostBody(
-                    currentPost.getId(),
-                    currentPost.getTime().toString(),
-                    userBody,
-                    currentPost.getTitle(),
-                    announce,
-                    currentPost.getVotes(VoteType.like),
-                    currentPost.getVotes(VoteType.dislike),
-                    currentPost.getCommentsCount(),
-                    currentPost.getViewCount()
-            );
+            PostBody postBody = PostBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString())
+                    .user(userBody).title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
+                    .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
+                    .viewCount(currentPost.getViewCount()).build();
+
+//            PostBody postBody = new PostBody(
+//                    currentPost.getId(),
+//                    currentPost.getTime().toString(),
+//                    userBody,
+//                    currentPost.getTitle(),
+//                    announce,
+//                    currentPost.getVotes(VoteType.like),
+//                    currentPost.getVotes(VoteType.dislike),
+//                    currentPost.getCommentsCount(),
+//                    currentPost.getViewCount()
+//            );
             postBodies.add(postBody);
         }
         return new PostResponseBody(count, postBodies);

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import response.CurrentPostResponseBody;
+import response.PostBody;
 import response.PostResponseBody;
 import services.PostService;
 
@@ -48,8 +48,8 @@ public class ApiPostController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CurrentPostResponseBody> getPostById(@PathVariable int id) {
-        CurrentPostResponseBody currentPostResponseBody = postService.getPostById(id);
+    public ResponseEntity<PostBody> getPostById(@PathVariable int id) {
+        PostBody currentPostResponseBody = postService.getPostById(id);
         return new ResponseEntity<>(currentPostResponseBody, HttpStatus.OK);
     }
 }
