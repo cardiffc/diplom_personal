@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
+//TODO Подумать над объединением CurrentPostResponseBody и PostBody
 @Component
 public class PostService {
 
@@ -37,7 +37,7 @@ public class PostService {
 
     public PostResponseBody getPostResponse(int offset, int limit, String mode) {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
-                "p.isActive = 1 and time < :nowTime", Post.class);
+                "p.isActive = 1 and time <= :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
         allPosts.setFirstResult(offset);
         allPosts.setMaxResults(limit);
@@ -53,10 +53,7 @@ public class PostService {
                 "p.isActive = '1' and time < :nowTime";
         Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
         countQuery.setParameter("searchParam","%" + query + "%").setParameter("nowTime", LocalDateTime.now());
-        Long preCount = (Long) countQuery.getSingleResult();
-        Integer count = Integer.parseInt(preCount.toString());
-
-
+        Long count = (Long) countQuery.getSingleResult();
         Query searchQuery = entityManager.createQuery(mainQuery, Post.class);
         searchQuery.setParameter("searchParam","%" + query + "%").setParameter("nowTime", LocalDateTime.now());
         searchQuery.setFirstResult(offset);
@@ -75,8 +72,7 @@ public class PostService {
         Query countQuery = entityManager.createQuery(countPrefix + mainQuery);
         countQuery.setParameter("day",day);
 
-        Long preCount = (Long) countQuery.getSingleResult();
-        Integer count = Integer.parseInt(preCount.toString());
+        Long count = (Long) countQuery.getSingleResult();
 
         Query searchByDateQuery = entityManager.createQuery(
                 mainQuery, Post.class);
@@ -100,14 +96,8 @@ public class PostService {
                 taggedPosts.remove(currentPost);
             }
         }
-
         int finish = Math.min(taggedPosts.size(), offset + limit);
-        ArrayList resultPosts = new ArrayList();
-        for (int i = offset; i < finish ; i++) {
-            resultPosts.add(taggedPosts.get(i));
-
-        }
-        return createResponse(taggedPosts.size(), resultPosts);
+        return createResponse(taggedPosts.size(), taggedPosts.subList(offset, finish));
     }
 
     public CurrentPostResponseBody getPostById(int id) {
@@ -161,7 +151,7 @@ public class PostService {
         return posts;
     }
 
-    private PostResponseBody createResponse (int count, List<Post> posts) {
+    private PostResponseBody createResponse (long count, List<Post> posts) {
 
         List<PostBody> postBodies = new ArrayList<>();
         for (int i = 0; i < posts.size(); i++) {
@@ -187,11 +177,10 @@ public class PostService {
         return new PostResponseBody(count, postBodies);
     }
 
-    public int getAllPostCount() {
+    public long getAllPostCount() {
         Query query = entityManager.createQuery("select count(*) from Post p where p.isActive = '1' and " +
-                "p.moderationStatus = 'ACCEPTED'");
-        Long preCount = (Long) query.getSingleResult();
-        int count = Integer.parseInt(preCount.toString());
+                "p.moderationStatus = 'ACCEPTED' and time <= :data").setParameter("data", LocalDateTime.now());
+        Long count = (Long) query.getSingleResult();
         return count;
     }
 }

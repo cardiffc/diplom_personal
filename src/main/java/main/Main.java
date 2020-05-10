@@ -19,8 +19,8 @@ import java.util.Date;
 @ComponentScan(basePackages = {"controller","main","services"})
 public class Main {
 
-    @Autowired
-    private PostRepository postRepository;
+//    @Autowired
+//    private PostRepository postRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
