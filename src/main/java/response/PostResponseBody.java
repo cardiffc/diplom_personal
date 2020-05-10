@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostResponseBody {
-    private int count;
+    private long count;
     private List<PostBody> posts;
 
 }

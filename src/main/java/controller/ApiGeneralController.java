@@ -17,6 +17,7 @@ import services.AuthService;
 import services.CalendarService;
 import services.TagService;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,9 +59,9 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/api/calendar")
-    //@TODO: сделать проверку года по условиям, что это цифры между 2015 и текущим годом
     public ResponseEntity getCalendar(@RequestParam(required = false) String year) {
-        if (year == null)
+         if (year == null || !year.matches("[0-9]{4}") ||
+                (Integer.parseInt(year) > 2020 || Integer.parseInt(year) < 2015))
             year = Integer.toString(LocalDateTime.now().getYear());
         CalendarResponseBody calendarResponseBody = calendarService.getCalendar(year);
         return new ResponseEntity(calendarResponseBody, HttpStatus.OK);

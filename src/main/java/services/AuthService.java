@@ -3,21 +3,17 @@ package services;
 import lombok.Data;
 import model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import repositories.UserRepository;
 import response.AuthResponseBody;
 import response.UserBody;
-
 import javax.persistence.EntityManager;
-import javax.persistence.MapKey;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Data
@@ -28,7 +24,7 @@ public class AuthService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private HashMap<String, Integer> sessions = new HashMap<>();
+    private ConcurrentHashMap<String, Integer> sessions = new ConcurrentHashMap<>();
 
     public AuthResponseBody logonUser(String email, String password) {
         User currentUser = userRepository.findByEmail(email);

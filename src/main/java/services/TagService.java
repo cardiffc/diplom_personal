@@ -50,7 +50,7 @@ public class TagService {
     private ArrayList<TagBody> getTagBodies(List<Tag> currentTags) {
         ArrayList<TagBody> tags = new ArrayList<>();
         for (Tag tag : currentTags) {
-            int postsCount = postService.getAllPostCount();
+            long postsCount = postService.getAllPostCount();
             double weight =  ((double) tag.getTagsPosts().size() / (double) postsCount) * 2;
             String tagName = tag.getName();
             TagBody tagResponseBody = TagBody.builder().weight(weight).name(tagName).build();
