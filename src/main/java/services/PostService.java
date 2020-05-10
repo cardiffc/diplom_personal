@@ -35,7 +35,7 @@ public class PostService {
 
     private static String countPrefix = "select count(*) ";
 
-    public PostResponseBody getPostResponse(int offset, int limit, String mode) {
+    public PostsResponseBody getPostResponse(int offset, int limit, String mode) {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
                 "p.isActive = 1 and time <= :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
@@ -45,7 +45,7 @@ public class PostService {
         return createResponse(getAllPostCount(), resultPosts);
     }
 
-    public PostResponseBody getSearchedPosts (int offset, int limit, String query) {
+    public PostsResponseBody getSearchedPosts (int offset, int limit, String query) {
         if (query.trim().equals("")) {
             return  getPostResponse(offset, limit, PostSortTypes.recent.toString());
         }
@@ -62,7 +62,7 @@ public class PostService {
         return createResponse(count,resultPosts);
     }
 
-    public PostResponseBody getPostsByDate(int offset, int limit, String date) throws ParseException {
+    public PostsResponseBody getPostsByDate(int offset, int limit, String date) throws ParseException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date day = formatter.parse(date);
@@ -83,7 +83,7 @@ public class PostService {
         return createResponse(count,resultPosts);
     }
 
-    public PostResponseBody getPostsByTag(int offset, int limit, String tag) {
+    public PostsResponseBody getPostsByTag(int offset, int limit, String tag) {
         Query tagQuery = entityManager.createQuery("from Tag t where t.name = :tagName", Tag.class);
         tagQuery.setParameter("tagName", tag);
         Tag currentTag = (Tag) tagQuery.getResultList().get(0);
@@ -100,13 +100,13 @@ public class PostService {
         return createResponse(taggedPosts.size(), taggedPosts.subList(offset, finish));
     }
 
-    public PostBody getPostById(int id) {
+    public PostResponseBody getPostById(int id) {
         Query byIdQuery = entityManager.createQuery("from Post p where p.id = :postId and p.isActive = '1' " +
                 "and p.moderationStatus = 'ACCEPTED'", Post.class);
         byIdQuery.setParameter("postId", id);
         Post currentPost = (Post) byIdQuery.getResultList().get(0);
         String postText = currentPost.getText();
-        String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
+      //  String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
         UserBody userBody = UserBody.builder().id(currentPost.getUser().getId()).name(currentPost.getUser().getName())
                 .build();
 
@@ -129,8 +129,8 @@ public class PostService {
             tags[i] = currentPostTags.get(i).getName();
 
         }
-        return   PostBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString()).user(userBody)
-                .title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
+        return   PostResponseBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString()).user(userBody)
+                .title(currentPost.getTitle()).text(currentPost.getText()).likeCount(currentPost.getVotes(VoteType.like))
                 .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
                 .viewCount(currentPost.getViewCount()).comments(responseComments).tags(tags).build();
     }
@@ -151,9 +151,9 @@ public class PostService {
         return posts;
     }
 
-    private PostResponseBody createResponse (long count, List<Post> posts) {
+    private PostsResponseBody createResponse (long count, List<Post> posts) {
 
-        List<PostBody> postBodies = new ArrayList<>();
+        List<PostResponseBody> postBodies = new ArrayList<>();
         for (int i = 0; i < posts.size(); i++) {
             Post currentPost = posts.get(i);
             UserBody userBody = UserBody.builder().id(currentPost.getUser().getId())
@@ -161,7 +161,7 @@ public class PostService {
 
             String postText = currentPost.getText();
             String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
-            PostBody postBody = PostBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString())
+            PostResponseBody postBody = PostResponseBody.builder().id(currentPost.getId()).time(currentPost.getTime().toString())
                     .user(userBody).title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
                     .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
                     .viewCount(currentPost.getViewCount()).build();
@@ -179,7 +179,7 @@ public class PostService {
 //            );
             postBodies.add(postBody);
         }
-        return new PostResponseBody(count, postBodies);
+        return new PostsResponseBody(count, postBodies);
     }
 
     public long getAllPostCount() {

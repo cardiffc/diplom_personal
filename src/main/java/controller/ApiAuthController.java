@@ -11,7 +11,7 @@ import request.AuthRequestBody;
 import response.AuthResponseBody;
 import services.AuthService;
 
-@Controller()
+@Controller
 public class ApiAuthController {
 
     @Autowired
