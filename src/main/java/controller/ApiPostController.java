@@ -7,8 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import response.CurrentPostResponseBody;
 import response.PostResponseBody;
+import response.PostsResponseBody;
 import services.PostService;
 
 import java.text.ParseException;
@@ -22,34 +22,34 @@ public class ApiPostController {
     private PostService postService;
 
     @GetMapping
-    public ResponseEntity<PostResponseBody> getPost(int offset,int limit,String mode) {
-        PostResponseBody postResponseBody = postService.getPostResponse(offset, limit, mode);
+    public ResponseEntity<PostsResponseBody> getPost(int offset, int limit, String mode) {
+        PostsResponseBody postResponseBody = postService.getPostResponse(offset, limit, mode);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 
     @GetMapping("search")
-    public ResponseEntity<PostResponseBody> getSearchedPost(int offset, int limit, String query) {
-        PostResponseBody postResponseBody = postService.getSearchedPosts(offset, limit, query);
+    public ResponseEntity<PostsResponseBody> getSearchedPost(int offset, int limit, String query) {
+        PostsResponseBody postResponseBody = postService.getSearchedPosts(offset, limit, query);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 
 
 
     @GetMapping("byDate")
-    public ResponseEntity<PostResponseBody> getPostsByDate(int offset, int limit, String date) throws ParseException {
-        PostResponseBody postResponseBody = postService.getPostsByDate(offset,limit,date);
+    public ResponseEntity<PostsResponseBody> getPostsByDate(int offset, int limit, String date) throws ParseException {
+        PostsResponseBody postResponseBody = postService.getPostsByDate(offset,limit,date);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 
     @GetMapping("byTag")
-    public ResponseEntity<PostResponseBody> getPostsByTag(int offset, int limit, String tag) {
-        PostResponseBody postResponseBody = postService.getPostsByTag(offset,limit,tag);
+    public ResponseEntity<PostsResponseBody> getPostsByTag(int offset, int limit, String tag) {
+        PostsResponseBody postResponseBody = postService.getPostsByTag(offset,limit,tag);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CurrentPostResponseBody> getPostById(@PathVariable int id) {
-        CurrentPostResponseBody currentPostResponseBody = postService.getPostById(id);
+    public ResponseEntity<PostResponseBody> getPostById(@PathVariable int id) {
+        PostResponseBody currentPostResponseBody = postService.getPostById(id);
         return new ResponseEntity<>(currentPostResponseBody, HttpStatus.OK);
     }
 }
