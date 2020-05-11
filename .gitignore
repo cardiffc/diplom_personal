@@ -1,3 +1,5 @@
 .idea/
 *.iml
 /diplom_personal.iml
+.target/
+.out/

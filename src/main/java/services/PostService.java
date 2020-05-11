@@ -34,6 +34,7 @@ public class PostService {
 
     private static String countPrefix = "select count(*) ";
 
+    //TODO Подумать над рефакторингом
     public PostsResponseBody getMyPosts (int offset, int limit, String status, int userId) {
         String appendix = "";
         String activeAppendix = " and p.isActive = '1' and p.moderationStatus = '";
