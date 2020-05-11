@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-//TODO Подумать над объединением CurrentPostResponseBody и PostBody
 @Component
 public class PostService {
 
@@ -34,6 +33,26 @@ public class PostService {
     PostRepository postRepository;
 
     private static String countPrefix = "select count(*) ";
+
+    public PostsResponseBody getMyPosts (int offset, int limit, String status, int userId) {
+        String appendix = "";
+        String activeAppendix = " and p.isActive = '1' and p.moderationStatus = '";
+        if (status.equals("inactive"))
+            appendix = " and p.isActive = '0'";
+        if (status.equals("pending"))
+            appendix = activeAppendix + ModerationStatus.NEW + "'";
+        if (status.equals("declined"))
+            appendix = activeAppendix + ModerationStatus.DECLINED + "'";
+        if (status.equals("published"))
+            appendix = activeAppendix + ModerationStatus.ACCEPTED + "'";
+        Query myPostsQuery = entityManager.createQuery("from Post p where p.user=" + userId + appendix);
+        myPostsQuery.setFirstResult(offset);
+        myPostsQuery.setMaxResults(limit);
+        List<Post> myPosts = myPostsQuery.getResultList();
+        return createResponse(myPosts.size(), myPosts);
+
+
+    }
 
     public PostsResponseBody getPostResponse(int offset, int limit, String mode) {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
@@ -106,7 +125,6 @@ public class PostService {
         byIdQuery.setParameter("postId", id);
         Post currentPost = (Post) byIdQuery.getResultList().get(0);
         String postText = currentPost.getText();
-      //  String announce = (postText.length() > 500) ? postText.substring(0,433).concat("...") : postText;
         UserBody userBody = UserBody.builder().id(currentPost.getUser().getId()).name(currentPost.getUser().getName())
                 .build();
 
@@ -165,18 +183,6 @@ public class PostService {
                     .user(userBody).title(currentPost.getTitle()).announce(announce).likeCount(currentPost.getVotes(VoteType.like))
                     .dislikeCount(currentPost.getVotes(VoteType.dislike)).commentCount(currentPost.getCommentsCount())
                     .viewCount(currentPost.getViewCount()).build();
-
-//            PostBody postBody = new PostBody(
-//                    currentPost.getId(),
-//                    currentPost.getTime().toString(),
-//                    userBody,
-//                    currentPost.getTitle(),
-//                    announce,
-//                    currentPost.getVotes(VoteType.like),
-//                    currentPost.getVotes(VoteType.dislike),
-//                    currentPost.getCommentsCount(),
-//                    currentPost.getViewCount()
-//            );
             postBodies.add(postBody);
         }
         return new PostsResponseBody(count, postBodies);

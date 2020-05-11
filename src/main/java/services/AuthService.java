@@ -24,25 +24,23 @@ public class AuthService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private ConcurrentHashMap<String, Integer> sessions = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Integer> authorizedSessions = new ConcurrentHashMap<>();
 
     public AuthResponseBody logonUser(String email, String password) {
         User currentUser = userRepository.findByEmail(email);
         if (currentUser == null || !currentUser.getPassword().equals(password)) {
             return AuthResponseBody.builder().result(false).build();
         } else {
-            HttpSession currentUserSession = getSession();
-            sessions.put(currentUserSession.toString(), currentUser.getId());
+            authorizedSessions.put(getSession().getId(), currentUser.getId());
             return generateSuccessResponse(currentUser);
         }
     }
 
     public AuthResponseBody checkAuth() {
-        HttpSession currentUserSession = getSession();
-        String key = currentUserSession.toString();
+        String key = getSession().getId();
         Integer userId;
-        if (sessions.containsKey(key)) {
-            userId = sessions.get(key);
+        if (authorizedSessions.containsKey(key)) {
+            userId = authorizedSessions.get(key);
             Query currentUserQuery = entityManager.createQuery("" +
                     "from User u where u.id = :id", User.class).setParameter("id", userId);
             User curruntUser = (User) currentUserQuery.getResultList().get(0);
@@ -54,10 +52,9 @@ public class AuthService {
     }
 
     public AuthResponseBody logout() {
-        HttpSession session = getSession();
-        String key = session.toString();
-        if (sessions.containsKey(key)) {
-            sessions.remove(key);
+        String key = getSession().getId();
+        if (authorizedSessions.containsKey(key)) {
+            authorizedSessions.remove(key);
         }
         return AuthResponseBody.builder().result(true).build();
 
@@ -80,10 +77,20 @@ public class AuthService {
         return authResponseBody;
     }
 
-    private HttpSession getSession() {
+    public HttpSession getSession() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         return attr.getRequest().getSession(true); // true == allow create
     }
+
+    public boolean isUserAuthorized() {
+       String sessionId = getSession().getId();
+       return authorizedSessions.containsKey(sessionId);
+    }
+
+    public int getLoggedUserId() {
+        return authorizedSessions.get(getSession().getId());
+    }
+
 
 
 

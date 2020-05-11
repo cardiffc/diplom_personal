@@ -72,16 +72,7 @@ public class ApiGeneralController {
         return null;
     }
 
-    @GetMapping("/api/test123")
-    public ResponseEntity tt () {
-        HttpSession session = getSession();
-        if (authService.getSessions().containsKey(session.toString())) {
-            System.out.println("test123 - OK");
-        } else {
-            System.out.println("test123 - FALSE");
-        }
-        return null;
-    }
+
 
     private HttpSession getSession() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();

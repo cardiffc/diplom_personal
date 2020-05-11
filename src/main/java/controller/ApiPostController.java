@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import response.PostResponseBody;
 import response.PostsResponseBody;
+import services.AuthService;
 import services.PostService;
 
+import javax.servlet.http.HttpSession;
 import java.text.ParseException;
 
 @Controller
@@ -21,10 +23,23 @@ public class ApiPostController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private AuthService authService;
+
     @GetMapping
     public ResponseEntity<PostsResponseBody> getPost(int offset, int limit, String mode) {
         PostsResponseBody postResponseBody = postService.getPostResponse(offset, limit, mode);
         return new ResponseEntity<>(postResponseBody, HttpStatus.OK);
+    }
+
+    @GetMapping("my")
+    public ResponseEntity getMyPosts(int offset, int limit, String status) {
+        if (!authService.isUserAuthorized())
+            return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+        int userId = authService.getLoggedUserId();
+        PostsResponseBody postsResponseBody = postService.getMyPosts(offset, limit, status, userId);
+        return new ResponseEntity(postsResponseBody, HttpStatus.OK);
+
     }
 
     @GetMapping("search")
