@@ -24,7 +24,7 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "moderation_status", columnDefinition = "moderation_status DEFAULT 'NEW'")
+    @Column(name = "moderation_status")
     private ModerationStatus moderationStatus;
 
 

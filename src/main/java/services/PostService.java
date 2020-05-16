@@ -16,6 +16,7 @@ import services.comparators.PostLikeComp;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -33,6 +34,30 @@ public class PostService {
     PostRepository postRepository;
 
     private static String countPrefix = "select count(*) ";
+
+    @Transactional
+    public AuthResponseBody moderatePost(int postId, String decision) {
+        ModerationStatus newStatus = ModerationStatus.NEW;
+        if (decision.equals("accept"))
+            newStatus = ModerationStatus.ACCEPTED;
+        if (decision.equals("decline"))
+            newStatus = ModerationStatus.DECLINED;
+        Query query = entityManager.createQuery("update Post p set p.moderationStatus = :status where p.id = :pid")
+                .setParameter("status", newStatus).setParameter("pid", postId);
+        query.executeUpdate();
+        return AuthResponseBody.builder().result(true).build();
+    }
+
+   public PostsResponseBody getPostsForModeration(int offset, int limit, String status, int userId) {
+        String queryBody = "from Post p where p.isActive = '1' and p.moderationStatus = '" + status.toUpperCase() + "'";
+        if (!status.equals("new"))
+           queryBody = queryBody.concat(" and p.moderatorId = " + userId);
+       Query query = entityManager.createQuery(queryBody);
+       query.setFirstResult(offset);
+       query.setMaxResults(limit);
+       List<Post> posts = query.getResultList();
+       return createResponse(posts.size(), posts);
+   }
 
     //TODO Подумать над рефакторингом
     public PostsResponseBody getMyPosts (int offset, int limit, String status, int userId) {

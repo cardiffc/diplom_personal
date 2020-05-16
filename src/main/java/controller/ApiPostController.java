@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import repositories.UserRepository;
 import response.PostResponseBody;
 import response.PostsResponseBody;
 import services.AuthService;
@@ -25,6 +26,9 @@ public class ApiPostController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<PostsResponseBody> getPost(int offset, int limit, String mode) {
@@ -66,5 +70,17 @@ public class ApiPostController {
     public ResponseEntity<PostResponseBody> getPostById(@PathVariable int id) {
         PostResponseBody currentPostResponseBody = postService.getPostById(id);
         return new ResponseEntity<>(currentPostResponseBody, HttpStatus.OK);
+    }
+
+    @GetMapping("moderation")
+    public ResponseEntity getPostsForModeration(int offset, int limit, String status) {
+        if (!authService.isUserAuthorized())
+            return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+        int userId = authService.getLoggedUserId();
+        if (userRepository.findById(userId).getIsModerator() == 0)
+            return new ResponseEntity("User not moderator", HttpStatus.BAD_REQUEST);
+        PostsResponseBody postsResponseBody = postService.getPostsForModeration(offset, limit, status, userId);
+            return new ResponseEntity(postsResponseBody, HttpStatus.OK);
+
     }
 }

@@ -89,6 +89,7 @@ public class AuthService {
 
     public int getLoggedUserId() {
         return authorizedSessions.get(getSession().getId());
+
     }
 
 

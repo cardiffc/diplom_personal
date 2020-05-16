@@ -51,7 +51,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -75,7 +75,7 @@ databaseChangeLog:
                   value: 0
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -99,7 +99,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: NEW
+                  value: "NEW"
               - column:
                   name: user_id
                   value: 1
@@ -126,7 +126,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 2
@@ -150,7 +150,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 2
@@ -174,7 +174,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -208,7 +208,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -232,7 +232,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -256,7 +256,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -280,7 +280,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -296,6 +296,10 @@ databaseChangeLog:
               - column:
                   name: view_count
                   value: 5
+              - column:
+                  name: moderator_id
+                  value: 2
+
         - insert:
             tableName: posts
             columns:
@@ -304,7 +308,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -328,7 +332,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -352,7 +356,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1
@@ -376,7 +380,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: moderation_status
-                  value: ACCEPTED
+                  value: "ACCEPTED"
               - column:
                   name: user_id
                   value: 1

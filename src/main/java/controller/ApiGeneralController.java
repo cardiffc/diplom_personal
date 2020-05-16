@@ -8,19 +8,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import repositories.UserRepository;
+import request.ModerateRequestBody;
+import response.AuthResponseBody;
 import response.CalendarResponseBody;
 import response.TagResponseBody;
 import services.AuthService;
 import services.CalendarService;
+import services.PostService;
 import services.TagService;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ApiGeneralController {
@@ -34,6 +42,12 @@ public class ApiGeneralController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/api/init")
     public ResponseEntity getBlogInfo() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
@@ -46,7 +60,17 @@ public class ApiGeneralController {
         }
     }
 
+    @PostMapping("/api/moderation")
+    public ResponseEntity moderatePost(@RequestBody ModerateRequestBody body) {
+        if (!authService.isUserAuthorized())
+            return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+        int userId = authService.getLoggedUserId();
+        if (userRepository.findById(userId).getIsModerator() == 0)
+            return new ResponseEntity("User not moderator", HttpStatus.BAD_REQUEST);
+        AuthResponseBody authResponseBody = postService.moderatePost(body.getPost_id(), body.getDecision());
+        return new ResponseEntity(authResponseBody, HttpStatus.OK);
 
+    }
     @GetMapping("/api/tag")
     public ResponseEntity getTags(@RequestParam(required = false) String query)
     {
@@ -71,7 +95,6 @@ public class ApiGeneralController {
     public ResponseEntity settings() {
         return null;
     }
-
 
 
     private HttpSession getSession() {
