@@ -39,6 +39,7 @@ public class Post {
 
     @NotNull
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+   // @Column(name = "user_id")
     private User user;
 
     @NotNull

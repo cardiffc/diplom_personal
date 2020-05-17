@@ -17,11 +17,9 @@ import repositories.UserRepository;
 import request.ModerateRequestBody;
 import response.AuthResponseBody;
 import response.CalendarResponseBody;
+import response.StatiscticsResponse;
 import response.TagResponseBody;
-import services.AuthService;
-import services.CalendarService;
-import services.PostService;
-import services.TagService;
+import services.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpSession;
@@ -48,6 +46,9 @@ public class ApiGeneralController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private GeneralService generalService;
+
     @GetMapping("/api/init")
     public ResponseEntity getBlogInfo() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
@@ -58,6 +59,23 @@ public class ApiGeneralController {
         } else {
             return new ResponseEntity(blog, HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/api/statistics/my")
+    public ResponseEntity getMyStatistics () {
+            if (!authService.isUserAuthorized())
+                return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+            int userId = authService.getLoggedUserId();
+        StatiscticsResponse statiscticsResponse = generalService.getMyStatistics(userId);
+            return new ResponseEntity(statiscticsResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/statistics/all")
+    public ResponseEntity getAllStatistics () {
+        if (!authService.isUserAuthorized())
+            return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+        StatiscticsResponse statiscticsResponse = generalService.getAllStatistics();
+        return new ResponseEntity(statiscticsResponse, HttpStatus.OK);
     }
 
     @PostMapping("/api/moderation")

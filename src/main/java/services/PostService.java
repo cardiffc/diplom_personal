@@ -82,15 +82,9 @@ public class PostService {
                 List<Tag> selectedTags = query.getResultList();
                 if (selectedTags.size() == 0) {
                     Tag newTag = tagRepository.save(Tag.builder().name(tag).build());
-                    int newTagId = newTag.getId();
-                    Tag2Post tag2Post = Tag2Post.builder().postId(postId).tagId(newTagId).build();
-                    tag2PostRepository.save(tag2Post);
+                    saveTagToPost(newTag.getId(), postId);
                 } else {
-                    selectedTags.forEach(selectedTag -> {
-                        int selectedTagId = selectedTag.getId();
-                        Tag2Post tag2Post = Tag2Post.builder().postId(postId).tagId(selectedTagId).build();
-                        tag2PostRepository.save(tag2Post);
-                    });
+                    selectedTags.forEach(selectedTag -> {saveTagToPost(selectedTag.getId(), postId);});
                 }
             });
         }
@@ -116,9 +110,9 @@ public class PostService {
         if (!status.equals("new"))
             queryBody = queryBody.concat(" and p.moderatorId = " + userId);
         Query query = entityManager.createQuery(queryBody);
+        List<Post> posts = query.getResultList();
         query.setFirstResult(offset);
         query.setMaxResults(limit);
-        List<Post> posts = query.getResultList();
         return createResponse(posts.size(), posts);
     }
 
@@ -245,7 +239,7 @@ public class PostService {
 
 
 
-    private List<Post> getSortedPosts(List<Post> posts, String mode) {
+    protected List<Post> getSortedPosts(List<Post> posts, String mode) {
 
         if (mode.equals(PostSortTypes.best.toString()))
             posts.sort(new PostLikeComp());
@@ -283,5 +277,10 @@ public class PostService {
                 "p.moderationStatus = 'ACCEPTED' and time <= :data").setParameter("data", LocalDateTime.now());
         Long count = (Long) query.getSingleResult();
         return count;
+    }
+
+    private void saveTagToPost(int tagId, int postId) {
+        Tag2Post tag2Post = Tag2Post.builder().postId(postId).tagId(tagId).build();
+        tag2PostRepository.save(tag2Post);
     }
 }
