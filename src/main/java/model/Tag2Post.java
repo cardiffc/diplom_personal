@@ -1,5 +1,6 @@
 package model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Entity
 @Table(name = "tag2post")
+@Builder
 public class Tag2Post {
 
     @Id

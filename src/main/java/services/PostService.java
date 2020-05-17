@@ -3,12 +3,14 @@ package services;
 import enums.ModerationStatus;
 import enums.PostSortTypes;
 import enums.VoteType;
-import model.Post;
-import model.PostComment;
-import model.Tag;
+import model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import repositories.PostRepository;
+import repositories.Tag2PostRepository;
+import repositories.TagRepository;
+import repositories.UserRepository;
+import request.PostRequestBody;
 import response.*;
 import services.comparators.PostByCommentComp;
 import services.comparators.PostByDateComp;
@@ -20,6 +22,7 @@ import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,31 +36,91 @@ public class PostService {
     @Autowired
     PostRepository postRepository;
 
+    @Autowired
+    TagRepository tagRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    Tag2PostRepository tag2PostRepository;
+
     private static String countPrefix = "select count(*) ";
 
+    public GenericBooleanResponse saveNewPost(PostRequestBody postRequestBody, int userId) {
+
+        //Проверяем длинну поста
+        if (postRequestBody.getTitle().length() < 3 || postRequestBody.getText().length() < 10) {
+            PostErrorBody postErrorBody = PostErrorBody.builder().text("Текст поста слишком короткий")
+                    .title("Заголовок не установлен").build();
+            return GenericBooleanResponse.builder().errors(postErrorBody).result(false).build();
+        }
+
+        //Получаем пользователя от которого поста
+        User user = userRepository.findById(userId);
+
+        //Получаем все переменные из запроса
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime postTime = LocalDateTime.parse(postRequestBody.getTime(), formatter);
+        if (postTime.isBefore(LocalDateTime.now()))
+            postTime = LocalDateTime.now();
+        String title = postRequestBody.getTitle();
+        String text = postRequestBody.getText();
+        byte active = (byte) postRequestBody.getActive();
+
+        //Cохраняем пост, получаем его ID
+        Post newPost = postRepository.save(Post.builder().time(postTime).title(title).text(text).isActive(active)
+                .moderationStatus(ModerationStatus.NEW).user(user).build());
+        int postId = newPost.getId();
+
+        //Работаем с тэгами
+        List<String> tags = postRequestBody.getTags();
+        if (tags.size() > 0) {
+            tags.forEach(tag -> {
+                Query query = entityManager.createQuery("from Tag t where t.name = :tag", Tag.class)
+                        .setParameter("tag", tag);
+                List<Tag> selectedTags = query.getResultList();
+                if (selectedTags.size() == 0) {
+                    Tag newTag = tagRepository.save(Tag.builder().name(tag).build());
+                    int newTagId = newTag.getId();
+                    Tag2Post tag2Post = Tag2Post.builder().postId(postId).tagId(newTagId).build();
+                    tag2PostRepository.save(tag2Post);
+                } else {
+                    selectedTags.forEach(selectedTag -> {
+                        int selectedTagId = selectedTag.getId();
+                        Tag2Post tag2Post = Tag2Post.builder().postId(postId).tagId(selectedTagId).build();
+                        tag2PostRepository.save(tag2Post);
+                    });
+                }
+            });
+        }
+
+        return GenericBooleanResponse.builder().result(true).build();
+    }
+
     @Transactional
-    public AuthResponseBody moderatePost(int postId, String decision) {
+    public AuthResponseBody moderatePost(int postId, String decision, int userId) {
         ModerationStatus newStatus = ModerationStatus.NEW;
         if (decision.equals("accept"))
             newStatus = ModerationStatus.ACCEPTED;
         if (decision.equals("decline"))
             newStatus = ModerationStatus.DECLINED;
-        Query query = entityManager.createQuery("update Post p set p.moderationStatus = :status where p.id = :pid")
-                .setParameter("status", newStatus).setParameter("pid", postId);
+        Query query = entityManager.createQuery("update Post p set p.moderationStatus = :status, p.moderatorId = :uid where p.id = :pid")
+                .setParameter("status", newStatus).setParameter("pid", postId).setParameter("uid", userId);
         query.executeUpdate();
         return AuthResponseBody.builder().result(true).build();
     }
 
-   public PostsResponseBody getPostsForModeration(int offset, int limit, String status, int userId) {
+    public PostsResponseBody getPostsForModeration(int offset, int limit, String status, int userId) {
         String queryBody = "from Post p where p.isActive = '1' and p.moderationStatus = '" + status.toUpperCase() + "'";
         if (!status.equals("new"))
-           queryBody = queryBody.concat(" and p.moderatorId = " + userId);
-       Query query = entityManager.createQuery(queryBody);
-       query.setFirstResult(offset);
-       query.setMaxResults(limit);
-       List<Post> posts = query.getResultList();
-       return createResponse(posts.size(), posts);
-   }
+            queryBody = queryBody.concat(" and p.moderatorId = " + userId);
+        Query query = entityManager.createQuery(queryBody);
+        query.setFirstResult(offset);
+        query.setMaxResults(limit);
+        List<Post> posts = query.getResultList();
+        return createResponse(posts.size(), posts);
+    }
 
     //TODO Подумать над рефакторингом
     public PostsResponseBody getMyPosts (int offset, int limit, String status, int userId) {
@@ -72,9 +135,9 @@ public class PostService {
         if (status.equals("published"))
             appendix = activeAppendix + ModerationStatus.ACCEPTED + "'";
         Query myPostsQuery = entityManager.createQuery("from Post p where p.user=" + userId + appendix);
+        List<Post> myPosts = myPostsQuery.getResultList();
         myPostsQuery.setFirstResult(offset);
         myPostsQuery.setMaxResults(limit);
-        List<Post> myPosts = myPostsQuery.getResultList();
         return createResponse(myPosts.size(), myPosts);
 
 
@@ -84,9 +147,10 @@ public class PostService {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
                 "p.isActive = 1 and time <= :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
+        List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
         allPosts.setFirstResult(offset);
         allPosts.setMaxResults(limit);
-        List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
+
         return createResponse(getAllPostCount(), resultPosts);
     }
 

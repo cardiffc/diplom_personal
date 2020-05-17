@@ -1,8 +1,11 @@
 package model;
 
 import enums.VoteType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import enums.ModerationStatus;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +16,9 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "posts")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

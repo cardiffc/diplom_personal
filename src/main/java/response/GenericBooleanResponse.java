@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthResponseBody {
+public class GenericBooleanResponse {
     private boolean result;
-    private AuthUserBody user;
+    private PostErrorBody errors;
 }

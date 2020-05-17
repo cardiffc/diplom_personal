@@ -4,10 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import repositories.UserRepository;
+import request.PostRequestBody;
+import response.AuthResponseBody;
+import response.GenericBooleanResponse;
 import response.PostResponseBody;
 import response.PostsResponseBody;
 import services.AuthService;
@@ -29,6 +30,15 @@ public class ApiPostController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @PostMapping
+    public ResponseEntity saveNewPost(@RequestBody PostRequestBody postRequestBody) {
+        if (!authService.isUserAuthorized())
+            return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+        int userId = authService.getLoggedUserId();
+        GenericBooleanResponse genericBooleanResponse = postService.saveNewPost(postRequestBody, userId);
+        return new ResponseEntity(genericBooleanResponse,HttpStatus.OK);
+    }
 
     @GetMapping
     public ResponseEntity<PostsResponseBody> getPost(int offset, int limit, String mode) {

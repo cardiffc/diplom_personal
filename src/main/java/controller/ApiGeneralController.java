@@ -67,7 +67,7 @@ public class ApiGeneralController {
         int userId = authService.getLoggedUserId();
         if (userRepository.findById(userId).getIsModerator() == 0)
             return new ResponseEntity("User not moderator", HttpStatus.BAD_REQUEST);
-        AuthResponseBody authResponseBody = postService.moderatePost(body.getPost_id(), body.getDecision());
+        AuthResponseBody authResponseBody = postService.moderatePost(body.getPost_id(), body.getDecision(), userId);
         return new ResponseEntity(authResponseBody, HttpStatus.OK);
 
     }

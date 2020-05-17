@@ -8,6 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import repositories.UserRepository;
 import response.AuthResponseBody;
+import response.AuthUserBody;
 import response.UserBody;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -67,11 +68,10 @@ public class AuthService {
         if (user.getIsModerator() == 1) {
             moderator = true;
             settings = true;
-            Query query = entityManager.createQuery("select count(*) from Post p where p.moderationStatus = 'NEW' " +
-                    "and p.moderatorId = :moderator").setParameter("moderator", user.getId());
+            Query query = entityManager.createQuery("select count(*) from Post p where p.moderationStatus = 'NEW'");
             moderationsCount = (long) query.getSingleResult();
         }
-        UserBody userBody = UserBody.builder().id(user.getId()).name(user.getName()).photo(user.getPhoto())
+        AuthUserBody userBody = AuthUserBody.builder().id(user.getId()).name(user.getName()).photo(user.getPhoto())
                 .email(user.getEmail()).moderation(moderator).moderationCount(moderationsCount).settings(settings).build();
         AuthResponseBody authResponseBody =  AuthResponseBody.builder().result(true).user(userBody).build();
         return authResponseBody;
