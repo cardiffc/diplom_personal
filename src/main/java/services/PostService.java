@@ -15,6 +15,7 @@ import response.*;
 import services.comparators.PostByCommentComp;
 import services.comparators.PostByDateComp;
 import services.comparators.PostLikeComp;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -75,20 +76,17 @@ public class PostService {
 
         //Работаем с тэгами
         List<String> tags = postRequestBody.getTags();
-        if (tags.size() > 0) {
+        if (!tags.isEmpty()) {
             tags.forEach(tag -> {
-                Query query = entityManager.createQuery("from Tag t where t.name = :tag", Tag.class)
-                        .setParameter("tag", tag);
-                List<Tag> selectedTags = query.getResultList();
-                if (selectedTags.size() == 0) {
+                Tag selectedTag = tagRepository.findByName(tag);
+                if (selectedTag == null) {
                     Tag newTag = tagRepository.save(Tag.builder().name(tag).build());
                     saveTagToPost(newTag.getId(), postId);
                 } else {
-                    selectedTags.forEach(selectedTag -> {saveTagToPost(selectedTag.getId(), postId);});
+                    saveTagToPost(selectedTag.getId(), postId);
                 }
             });
         }
-
         return GenericBooleanResponse.builder().result(true).build();
     }
 
@@ -141,10 +139,25 @@ public class PostService {
         Query allPosts = entityManager.createQuery("from Post p where p.moderationStatus = 'ACCEPTED' and " +
                 "p.isActive = 1 and time <= :nowTime", Post.class);
         allPosts.setParameter("nowTime", LocalDateTime.now());
-        List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
         allPosts.setFirstResult(offset);
         allPosts.setMaxResults(limit);
+        List<Post> resultPosts = getSortedPosts(allPosts.getResultList(), mode);
 
+
+
+
+//        int test = getAllPostCount() / limit;
+//
+//        for (int i = 0; i < test ; i++) {
+//            List<Post> resultPosts = postRepository.findPostByModerationStatusAndIsActive(ModerationStatus.ACCEPTED, (byte) 1,
+//                 PageRequest.of(offset, limit));
+//            return createResponse(getAllPostCount(), resultPosts);
+//        }
+
+
+//        List<Post> resultPosts = postRepository.findPostByModerationStatusAndIsActive(ModerationStatus.ACCEPTED, (byte) 1,
+//                 PageRequest.of(offset, limit));
+      //  return createResponse(getAllPostCount(), resultPosts);
         return createResponse(getAllPostCount(), resultPosts);
     }
 
@@ -204,10 +217,7 @@ public class PostService {
     }
 
     public PostResponseBody getPostById(int id) {
-        Query byIdQuery = entityManager.createQuery("from Post p where p.id = :postId and p.isActive = '1' " +
-                "and p.moderationStatus = 'ACCEPTED'", Post.class);
-        byIdQuery.setParameter("postId", id);
-        Post currentPost = (Post) byIdQuery.getResultList().get(0);
+        Post currentPost = postRepository.findPostByIdAndIsActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
         String postText = currentPost.getText();
         UserBody userBody = UserBody.builder().id(currentPost.getUser().getId()).name(currentPost.getUser().getName())
                 .build();
@@ -272,11 +282,9 @@ public class PostService {
         return new PostsResponseBody(count, postBodies);
     }
 
-    public long getAllPostCount() {
-        Query query = entityManager.createQuery("select count(*) from Post p where p.isActive = '1' and " +
-                "p.moderationStatus = 'ACCEPTED' and time <= :data").setParameter("data", LocalDateTime.now());
-        Long count = (Long) query.getSingleResult();
-        return count;
+    public int getAllPostCount() {
+        return postRepository.findPostByModerationStatusAndIsActiveAndTimeBefore(ModerationStatus.ACCEPTED,
+                (byte) 1, LocalDateTime.now()).size();
     }
 
     private void saveTagToPost(int tagId, int postId) {

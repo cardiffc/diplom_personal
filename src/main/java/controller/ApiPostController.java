@@ -7,14 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import repositories.UserRepository;
 import request.PostRequestBody;
-import response.AuthResponseBody;
 import response.GenericBooleanResponse;
 import response.PostResponseBody;
 import response.PostsResponseBody;
 import services.AuthService;
 import services.PostService;
 
-import javax.servlet.http.HttpSession;
 import java.text.ParseException;
 
 @Controller

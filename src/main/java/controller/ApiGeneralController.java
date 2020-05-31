@@ -20,13 +20,8 @@ import response.CalendarResponseBody;
 import response.StatiscticsResponse;
 import response.TagResponseBody;
 import services.*;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpSession;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 public class ApiGeneralController {

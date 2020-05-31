@@ -1,3 +1,4 @@
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/repositories/Tag2PostRepository.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/UserBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/CalendarService.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/intefraces/QueryConditions.java
@@ -19,15 +20,21 @@
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/PostResponseBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/enums/PostSortTypes.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/Post.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/StatiscticsResponse.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/repositories/TagRepository.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/AuthUserBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/controller/ApiAuthController.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/repositories/PostRepository.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/PostErrorBody.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/request/PostRequestBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/enums/VoteType.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/repositories/UserRepository.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/PostComment.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/request/ModerateRequestBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/Tag2Post.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/TagResponseBody.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/CaptchaCode.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/GeneralService.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/controller/ApiGeneralController.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/comparators/PostByDateComp.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/enums/ModerationStatus.java
@@ -35,4 +42,5 @@
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/Tag.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/model/GlobalSetting.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/comparators/PostLikeComp.java
+/home/cardiff/Java/Diplom/diplom_personal/src/main/java/response/GenericBooleanResponse.java
 /home/cardiff/Java/Diplom/diplom_personal/src/main/java/services/TagService.java

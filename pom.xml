@@ -5,14 +5,26 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cardiffc</groupId>
     <artifactId>diplom_personal</artifactId>
-    <version>1.1</version>
-
+    <version>1.2</version>
+    <repositories>
+        <repository>
+            <id>maven-group</id>
+            <url>http://nexus.cdevops.ru:8081/repository/maven-group/</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://nexus.cdevops.ru:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-releases</id>
+            <url>http://nexus.cdevops.ru:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
 
     <build>
-
         <plugins>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -52,13 +64,7 @@
         </plugins>
 
     </build>
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>acmenexus</name>
-            <url>http://localhost:8081/repository/maven-public/</url>
-        </repository>
-    </repositories>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
